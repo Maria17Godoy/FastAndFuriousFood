@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import local.godoy.FastAndFuriousFood.domain.model.Produto;
 import local.godoy.FastAndFuriousFood.domain.repository.ProdutoRepository;
+import local.godoy.FastAndFuriousFood.domain.service.ProdutoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,53 +35,46 @@ public class ProdutoController {
     @Autowired
     private ProdutoRepository produtoRepository;
                 
-    @GetMapping("/produtos")
-    public List<Produto> listas() {
-        return produtoRepository.findByNome("x-salada");
+    @Autowired
+    private ProdutoService produtoService;
+
+    @GetMapping
+    public List<Produto> listar() {
+        return produtoRepository.findAll(); 
     }
-    
-    @GetMapping("/produtos/{produtoID}")
+
+    @GetMapping("/{produtoID}")
     public ResponseEntity<Produto> buscar(@PathVariable Long produtoID) {
-        
-        Optional<Produto> produto = produtoRepository.findById(produtoID);
-        
-        if (produto.isPresent()) {
-            return ResponseEntity.ok(produto.get());
-        } else{
-            return ResponseEntity.notFound().build();
-        }
-        
+        return produtoRepository.findById(produtoID)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
-    
-    @PostMapping("/produtos")
+
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Produto adicionar(@Valid @RequestBody Produto produto) {
-        
-        return produtoRepository.save(produto);
+        return produtoService.salvar(produto);
     }
-         
-    @PutMapping("/produtos/{produtoID}")
-    public ResponseEntity<Produto> atualizar(@Valid @PathVariable Long produtoID, @RequestBody Produto produto) {
-        
+
+    @PutMapping("/{produtoID}")
+    public ResponseEntity<Produto> atualizar(@Valid @PathVariable Long produtoID, @Valid @RequestBody Produto produto) {
         if (!produtoRepository.existsById(produtoID)) {
             return ResponseEntity.notFound().build();
         }
-        
+
         produto.setId(produtoID);
-        produto = produtoRepository.save(produto);
-        return ResponseEntity.ok(produto);
-        
-    
+        Produto atualizado = produtoService.salvar(produto);
+        return ResponseEntity.ok(atualizado);
     }
-    @DeleteMapping("/produtos/{produtoID}")
+
+    @DeleteMapping("/{produtoID}")
     public ResponseEntity<Void> excluir(@PathVariable Long produtoID) {
-        
-        if(!produtoRepository.existsById(produtoID)) {
+        if (!produtoRepository.existsById(produtoID)) {
             return ResponseEntity.notFound().build();
         }
-        
-        produtoRepository.deleteById(produtoID);
+
+        produtoService.excluir(produtoID);
         return ResponseEntity.noContent().build();
     }
-    
 }
+
