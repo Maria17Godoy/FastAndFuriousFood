@@ -10,8 +10,10 @@ import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import local.godoy.FastAndFuriousFood.domain.model.Pedido;
 import local.godoy.FastAndFuriousFood.domain.model.Produto;
 import local.godoy.FastAndFuriousFood.domain.repository.ProdutoRepository;
+import local.godoy.FastAndFuriousFood.domain.service.PedidoService;
 import local.godoy.FastAndFuriousFood.domain.service.ProdutoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -76,5 +78,6 @@ public class ProdutoController {
         produtoService.excluir(produtoID);
         return ResponseEntity.noContent().build();
     }
+    
 }
 
